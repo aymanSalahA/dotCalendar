@@ -1,3 +1,4 @@
+![Alt text](demo.png)
 # Dot Calendar
 
 A dot grid calendar visualization tool. Displays days of the month as a grid of numbered circles/dots. Each dot represents a date and can show associated information when data is provided.
@@ -9,11 +10,4 @@ A dot grid calendar visualization tool. Displays days of the month as a grid of 
 -   Data overlay support
 -   static and api data source version
 -   all code and style in one page , can be splitted
--
-
-## Todo
-
-- [ ] tooltip
-- [ ] Add repository preview image/GIF
-- [ ] readme image
-- [ ] 
+-   one version in Bootstrap, another in TailwindCSS
