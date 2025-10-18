@@ -1,21 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Calendar Dot</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css" />
-</head>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for a cleaner typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Using a modern font for the whole page */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
 
-<body>
-    <div class="container mt-3">
-        <div class="card p-2">
-            <div class="row row-cols-7 gx-1 gy-1" id="calendar-grid"></div>
+        /* Custom styles for the check and x-marks using pseudo-elements */
+        .check-mark::after,
+        .x-mark::after {
+            position: absolute;
+            top: 55%; /* Adjusted position for better alignment */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20; /* Ensure it's above the dot */
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .check-mark::after {
+            content: "✓";
+            color: #16a34a; /* A darker, more pleasant green */
+        }
+
+        .x-mark::after {
+            content: "✗";
+            color: #dc2626; /* A matching red */
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen">
+    <!-- Main container for the calendar -->
+    <div class="w-full max-w-lg mx-auto p-4">
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+            <!-- Header section for month and year -->
+            <div class="text-center mb-4">
+                <h1 class="text-2xl font-bold text-slate-800">October 2025</h1>
+            </div>
+
+            <!-- Days of the week headers -->
+            <div class="grid grid-cols-7 gap-2 text-center text-sm font-semibold text-slate-500 mb-2">
+                <div>Sun</div>
+                <div>Mon</div>
+                <div>Tue</div>
+                <div>Wed</div>
+                <div>Thu</div>
+                <div>Fri</div>
+                <div>Sat</div>
+            </div>
+
+            <!-- Main grid for the calendar days -->
+            <div class="grid grid-cols-7 gap-1" id="calendar-grid">
+                <!-- Day cells will be dynamically inserted here by JavaScript -->
+            </div>
         </div>
     </div>
-    <script src="script.js"></script>
-</body>
 
+    <script>
+        const grid = document.getElementById("calendar-grid");
+
+        // --- Static Data for October 2025 ---
+        // isSelected: Determines if the day is part of the program (dot is visible)
+        // isDone: If isSelected is true, determines if the task was completed (check or x-mark)
+        const october2025Data = [
+            { day: 1, isSelected: true, isDone: true },
+            { day: 2, isSelected: true, isDone: false },
+            { day: 3, isSelected: false, isDone: false },
+            { day: 4, isSelected: true, isDone: true },
+            { day: 5, isSelected: true, isDone: true },
+            { day: 6, isSelected: false, isDone: false },
+            { day: 7, isSelected: true, isDone: true },
+            { day: 8, isSelected: true, isDone: false },
+            { day: 9, isSelected: true, isDone: true },
+            { day: 10, isSelected: false, isDone: false },
+            { day: 11, isSelected: true, isDone: true },
+            { day: 12, isSelected: true, isDone: false },
+            { day: 13, isSelected: true, isDone: true },
+            { day: 14, isSelected: true, isDone: true },
+            { day: 15, isSelected: false, isDone: false },
+            { day: 16, isSelected: true, isDone: false },
+            { day: 17, isSelected: true, isDone: true },
+            { day: 18, isSelected: true, isDone: true },
+            { day: 19, isSelected: false, isDone: false },
+            { day: 20, isSelected: true, isDone: true },
+            { day: 21, isSelected: true, isDone: false },
+            { day: 22, isSelected: true, isDone: true },
+            { day: 23, isSelected: false, isDone: false },
+            { day: 24, isSelected: true, isDone: true },
+            { day: 25, isSelected: true, isDone: true },
+            { day: 26, isSelected: true, isDone: false },
+            { day: 27, isSelected: false, isDone: false },
+            { day: 28, isSelected: true, isDone: true },
+            { day: 29, isSelected: true, isDone: false },
+            { day: 30, isSelected: true, isDone: true },
+            { day: 31, isSelected: false, isDone: false },
+        ];
+
+        // --- Calendar Generation Logic ---
+        const year = 2025;
+        const month = 9; // JavaScript months are 0-indexed (0=Jan, 9=Oct)
+
+        // Get the first day of the month (0=Sun, 1=Mon, ..., 6=Sat)
+        const firstDayOfMonth = new Date(year, month, 1).getDay();
+
+        let calendarHTML = '';
+
+        // Add empty cells for the days before the 1st of the month
+        for (let i = 0; i < firstDayOfMonth; i++) {
+            calendarHTML += `<div class="day-cell-empty"></div>`;
+        }
+
+        // Populate the grid with data from the static array
+        october2025Data.forEach(dayData => {
+            const statusClass = dayData.isSelected ? (dayData.isDone ? "check-mark" : "x-mark") : "";
+            const dotClass = dayData.isSelected ? "bg-green-100" : "bg-slate-100";
+            const dayNumberClass = new Date().getDate() === dayData.day && new Date().getMonth() === month && new Date().getFullYear() === year
+                ? 'bg-blue-600 text-white'
+                : 'text-slate-700';
+
+            calendarHTML += `
+                <div class="relative h-14 flex items-center justify-center text-lg font-medium ${statusClass}">
+                    <!-- The colored dot background -->
+                    <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full z-10 ${dotClass}"></span>
+                    <!-- The day number, sits on top of the dot -->
+                    <span class="relative z-20 w-8 h-8 flex items-center justify-center rounded-full ${dayNumberClass}">${dayData.day}</span>
+                </div>`;
+        });
+
+        grid.innerHTML = calendarHTML;
+    </script>
+</body>
 </html>
