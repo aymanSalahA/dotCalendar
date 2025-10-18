@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Habit Tracker Calendar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles to match the original design intent */
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            /* Corresponds to a light slate color (slate-100) */
+        }
+
+        /* --- Custom Mark Styles (Retained from Original) --- */
+
+        /* Base styles for the status marks */
+        .check-mark::after,
+        .x-mark::after,
+        .skip-mark::after {
+            position: absolute;
+            top: 62%;
+            /* Lowered the icons from 55% */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            /* Ensure it's above the dot */
+            font-weight: bold;
+            font-size: 1.1rem;
+            /* Slightly larger for better visibility */
+            line-height: 1;
+        }
+
+        /* Check mark for 'isDone: true' */
+        .check-mark::after {
+            content: "✓";
+            color: #16a34a;
+            /* Dark green (green-700) */
+        }
+
+        /* X mark for 'isDone: false' and 'isSkipped: false' */
+        .x-mark::after {
+            content: "✗";
+            color: #dc2626;
+            /* Dark red (red-700) */
+        }
+
+        /* Dot mark for 'isSkipped: true' */
+        .skip-mark::after {
+            content: "•";
+            /* Changed icon for skipped */
+            color: #f59e0b;
+            /* Changed color to amber/yellow (amber-500) */
+            font-size: 1.5rem;
+            /* Made the dot a bit larger */
+        }
+
+        /* --- Calendar Grid Utility Styles (Customized for Bootstrap) --- */
+
+        /* Mimics the Tailwind 'grid grid-cols-7' and 'gap-1/2' */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.25rem;
+            /* Smaller gap than standard Bootstrap 'g-2' */
+        }
+
+        /* Day cell height and alignment */
+        .day-cell {
+            height: 3.5rem;
+            /* Corresponds to h-14 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Dot and Day Number Positioning */
+        .dot-background {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 2.25rem;
+            /* w-9 */
+            height: 2.25rem;
+            /* h-9 */
+            border-radius: 50%;
+            z-index: 10;
+        }
+
+        .day-number {
+            position: relative;
+            z-index: 20;
+            width: 2rem;
+            /* w-8 */
+            height: 2rem;
+            /* h-8 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+
+<body class="d-flex align-items-center justify-content-center min-vh-100 p-4">
+    <div class="w-100" style="max-width: 512px;">
+        <div class="bg-white rounded-4 shadow p-4 p-md-5">
+            <div class="text-center mb-4 mb-md-5">
+                <h1 id="habit-name" class="fs-4 fw-bold text-dark">Loading...</h1>
+                <p id="month-year" class="text-secondary mb-0">Fetching Data</p>
+                </div>
+
+            <div class="calendar-grid text-center small fw-semibold text-secondary mb-2">
+                <div>Sun</div>
+                <div>Mon</div>
+                <div>Tue</div>
+                <div>Wed</div>
+                <div>Thu</div>
+                <div>Fri</div>
+                <div>Sat</div>
+            </div>
+
+            <div class="calendar-grid" id="calendar-grid">
+                </div>
+        </div>
+    </div>
+
+
+    <script>
+        const API_URL = "http://127.0.0.1:8000/get-dot-calendar-data";
+
+        // Get references to HTML elements
+        const grid = document.getElementById("calendar-grid");
+        const habitNameEl = document.getElementById("habit-name");
+        const monthYearEl = document.getElementById("month-year");
+
+        // Helper function to get the number of days in a month (JS month is 0-indexed)
+        const getDaysInMonth = (year, monthIndex) => new Date(year, monthIndex + 1, 0).getDate();
+
+        // Helper function to pad single-digit numbers for date strings (e.g., 5 -> '05')
+        const pad = (num) => num.toString().padStart(2, '0');
+
+
+        // --- Main Rendering Function ---
+        function renderCalendar(fullMonthItems, year, monthIndex, habitName) {
+            // monthIndex is 0-indexed (0=Jan)
+
+            // 1. Update Header
+            const date = new Date(year, monthIndex);
+            const monthName = date.toLocaleString('default', { month: 'long' });
+
+            habitNameEl.textContent = habitName;
+            monthYearEl.textContent = `${monthName} ${year}`;
+
+            // 2. Determine Calendar Start Position (first day of the month)
+            const firstDayOfMonth = new Date(year, monthIndex, 1).getDay(); // 0=Sun, 1=Mon, etc.
+
+            let calendarHTML = '';
+
+            // Add empty cells for the days before the 1st of the month
+            for (let i = 0; i < firstDayOfMonth; i++) {
+                calendarHTML += `<div></div>`;
+            }
+
+            // 3. Populate Grid
+            fullMonthItems.forEach(item => {
+                let statusClass = "";
+                let dotClass = "bg-light"; // Default: Gray for invalid/missing days (bg-slate-100)
+
+                // Determine status mark and dot color
+                if (item.isValid) {
+                    // For ANY valid day, the background dot is green-ish
+                    dotClass = "bg-success-subtle"; // Using Bootstrap's subtle background for green-100
+
+                    if (item.isSkipped) {
+                        statusClass = "skip-mark"; // • (yellow icon)
+                    } else if (item.isDone) {
+                        statusClass = "check-mark"; // ✓ (green icon)
+                    } else {
+                        statusClass = "x-mark"; // ✗ (red icon)
+                    }
+                }
+
+                // Extract the day number from the YYYY-MM-DD string
+                const dayNumber = parseInt(item.date.split('-')[2], 10);
+
+                // Highlight the current day (using the browser's current date)
+                const today = new Date();
+                const isToday = today.getDate() === dayNumber &&
+                    today.getMonth() === monthIndex &&
+                    today.getFullYear() === year;
+
+                // Apply different styling for invalid days (missing days)
+                const dayNumberClass = isToday
+                    ? 'bg-primary text-white' // bg-blue-600 text-white
+                    : item.isValid ? 'text-dark' : 'text-secondary'; // text-slate-700 / text-slate-400
+
+                // Add a subtle opacity change for non-valid days
+                const opacityClass = item.isValid ? '' : 'opacity-75'; // opacity-60
+
+                calendarHTML += `
+          <div class="position-relative day-cell fs-5 fw-medium ${statusClass} ${opacityClass}">
+            <span class="dot-background ${dotClass}"></span>
+            <span class="day-number ${dayNumberClass}">${dayNumber}</span>
+          </div>`;
+            });
+
+            grid.innerHTML = calendarHTML;
+        }
+
+
+        // --- Data Fetching and Processing ---
+        async function loadAndProcessData() {
+            let fetchedData;
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                fetchedData = await response.json();
+            } catch (error) {
+                console.error("Could not fetch calendar data:", error);
+                habitNameEl.textContent = "Error Loading Data";
+                monthYearEl.textContent = "Please check the server status at " + API_URL;
+                grid.innerHTML = `<div class="col-12 text-center py-5 text-danger">Failed to load calendar data.</div>`;
+                return;
+            }
+
+            const year = parseInt(fetchedData.year, 10);
+            const month = parseInt(fetchedData.month, 10); // 1-indexed
+            const habitName = fetchedData.habitName || "Untitled Habit";
+            const monthIndex = month - 1; // 0-indexed for JS Date object
+
+            if (isNaN(year) || isNaN(month)) {
+                console.error("Invalid year or month received from API.");
+                return;
+            }
+
+            // Map existing items for fast lookup by date (YYYY-MM-DD)
+            const existingItemsMap = new Map();
+            (fetchedData.items || []).forEach(item => {
+                // Normalize 0/1 to false/true and ensure isValid is boolean
+                const normalizedItem = {
+                    date: item.date,
+                    isValid: !!item.isValid,
+                    isDone: item.isDone === 1 || item.isDone === true,
+                    isSkipped: item.isSkipped === 1 || item.isSkipped === true,
+                };
+                existingItemsMap.set(normalizedItem.date, normalizedItem);
+            });
+
+            // Generate the full month's data (filling in missing dates)
+            const daysInMonth = getDaysInMonth(year, monthIndex);
+            const fullMonthItems = [];
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                // Format the date key to ISO standard: YYYY-MM-DD
+                const dateKey = `${year}-${pad(month)}-${pad(day)}`;
+
+                if (existingItemsMap.has(dateKey)) {
+                    // Date found in API data
+                    fullMonthItems.push(existingItemsMap.get(dateKey));
+                } else {
+                    // Date is missing from API data, fill with isValid: false
+                    fullMonthItems.push({
+                        date: dateKey,
+                        isValid: false,
+                        isDone: false,
+                        isSkipped: false,
+                    });
+                }
+            }
+
+            // Render the processed data
+            renderCalendar(fullMonthItems, year, monthIndex, habitName);
+        }
+
+        // Start the process on page load
+        window.onload = loadAndProcessData;
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
