@@ -1,0 +1,10 @@
+I want to make the Dot Calender with Following requirements :
+
+1- First of all , being something like a JS plugin that takes Data from Data Source
+or static Data  ;
+
+2- Render those Data on Dots "circles" for the corresponsing month
+
+3- Define other options : Tooltip , Clicks , Colors and Styles and Icons used ..etc
+
+4- Now all what user Does [ Import it and Fill Data wit Settings ] and Gets it rendered
