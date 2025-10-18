@@ -1,0 +1,13 @@
+{
+  "year": "2025",
+  "month": "10",
+  "habitName": "my Lovelely Habit",
+  "items": [
+    {
+      "date": "2025-10-18",
+      "isDone": 0,
+      "isSkipped": 0,
+      "isValid": true
+    }
+  ]
+}

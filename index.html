@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,10 +12,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Using a modern font for the whole page */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f1f5f9; /* A light slate color */
+            background-color: #f1f5f9;
+            /* A light slate color */
         }
 
         /* Base styles for the status marks */
@@ -22,43 +23,52 @@
         .x-mark::after,
         .skip-mark::after {
             position: absolute;
-            top: 62%; /* Lowered the icons from 55% */
+            top: 62%;
+            /* Lowered the icons from 55% */
             left: 50%;
             transform: translateX(-50%);
-            z-index: 20; /* Ensure it's above the dot */
+            z-index: 20;
+            /* Ensure it's above the dot */
             font-weight: bold;
-            font-size: 1.1rem; /* Slightly larger for better visibility */
+            font-size: 1.1rem;
+            /* Slightly larger for better visibility */
             line-height: 1;
         }
 
         /* Check mark for 'isDone: true' */
         .check-mark::after {
             content: "✓";
-            color: #16a34a; /* Dark green */
+            color: #16a34a;
+            /* Dark green */
         }
 
         /* X mark for 'isDone: false' and 'isSkipped: false' */
         .x-mark::after {
             content: "✗";
-            color: #dc2626; /* Dark red */
+            color: #dc2626;
+            /* Dark red */
         }
 
         /* Dot mark for 'isSkipped: true' */
         .skip-mark::after {
-            content: "•"; /* Changed icon for skipped */
-            color: #f59e0b; /* Changed color to amber/yellow */
-            font-size: 1.5rem; /* Made the dot a bit larger */
+            content: "•";
+            /* Changed icon for skipped */
+            color: #f59e0b;
+            /* Changed color to amber/yellow */
+            font-size: 1.5rem;
+            /* Made the dot a bit larger */
         }
     </style>
 </head>
+
 <body class="flex items-center justify-center min-h-screen p-4">
     <!-- Main container for the calendar -->
     <div class="w-full max-w-lg mx-auto">
         <div class="bg-white rounded-2xl shadow-lg p-6">
             <!-- Header section for habit, month, and year -->
             <div class="text-center mb-6">
-                <h1 id="habit-name" class="text-2xl font-bold text-slate-800"></h1>
-                <p id="month-year" class="text-md text-slate-500"></p>
+                <h1 id="habit-name" class="text-2xl font-bold text-slate-800">Loading...</h1>
+                <p id="month-year" class="text-md text-slate-500">Fetching Data</p>
             </div>
 
             <!-- Days of the week headers -->
@@ -79,123 +89,161 @@
         </div>
     </div>
 
-    <script>
-        // --- Mock Server API Data ---
-        // This object simulates the data you would fetch from your server.
-        // You can replace this with a `fetch()` call to your API endpoint.
-        const apiData = {
-            // The full year.
-            year: "2025",
-            // The month (1-12).
-            month: "10",
-            // The name of the habit being tracked.
-            habitName: "Daily Morning Run",
-            // An array containing the status for each day of the month.
-            items: [
-                { day: "01-10-2025", isValid: true, isDone: true, isSkipped: false },
-                { day: "02-10-2025", isValid: true, isDone: false, isSkipped: false },
-                { day: "03-10-2025", isValid: false, isDone: false, isSkipped: false },
-                { day: "04-10-2025", isValid: true, isDone: true, isSkipped: false },
-                { day: "05-10-2025", isValid: true, isDone: true, isSkipped: false },
-                { day: "06-10-2025", isValid: true, isDone: false, isSkipped: true },
-                { day: "07-10-2025", isValid: true, isDone: true, isSkipped: false },
-                { day: "08-10-2025", isValid: false, isDone: false, isSkipped: false },
-                { day: "09-10-2025", isValid: true, isDone: false, isSkipped: false },
-                { day: "10-10-2025", isValid: true, isDone: true, isSkipped: false },
-                { day: "11-10-2025", isValid: true, isDone: true, isSkipped: false },
-                { day: "12-10-2025", isValid: false, isDone: false, isSkipped: false },
-                { day: "13-10-2025", isValid: true, isDone: false, isSkipped: true },
-                { day: "14-10-2025", isValid: true, isDone: true, isSkipped: false },
-                { day: "15-10-2025", isValid: true, isDone: true, isSkipped: false },
-                { day: "16-10-2025", isValid: true, isDone: false, isSkipped: false },
-                { day: "17-10-2025", isValid: true, isDone: true, isSkipped: false },
-                { day: "18-10-2025", isValid: true, isDone: true, isSkipped: false },
-                { day: "19-10-2025", isValid: true, isDone: false, isSkipped: true },
-                { day: "20-10-2025", isValid: false, isDone: false, isSkipped: false },
-                { day: "21-10-2025", isValid: true, isDone: false, isSkipped: false },
-                { day: "22-10-2025", isValid: true, isDone: true, isSkipped: false },
-                { day: "23-10-2025", isValid: true, isDone: true, isSkipped: false },
-                { day: "24-10-2025", isValid: true, isDone: false, isSkipped: true },
-                { day: "25-10-2025", isValid: true, isDone: true, isSkipped: false },
-                { day: "26-10-2025", isValid: false, isDone: false, isSkipped: false },
-                { day: "27-10-2025", isValid: true, isDone: true, isSkipped: false },
-                { day: "28-10-2025", isValid: true, isDone: false, isSkipped: false },
-                { day: "29-10-2025", isValid: true, isDone: true, isSkipped: false },
-                { day: "30-10-2025", isValid: true, isDone: false, isSkipped: true },
-                { day: "31-10-2025", isValid: true, isDone: true, isSkipped: false },
-            ]
-        };
 
-        // --- Calendar Generation Logic ---
+    <script>
+        const API_URL = "http://127.0.0.1:8000/get-dot-calendar-data";
 
         // Get references to HTML elements
         const grid = document.getElementById("calendar-grid");
         const habitNameEl = document.getElementById("habit-name");
         const monthYearEl = document.getElementById("month-year");
 
-        // Parse data from the API response
-        const year = parseInt(apiData.year);
-        // JavaScript months are 0-indexed (0=Jan), so we subtract 1.
-        const month = parseInt(apiData.month) - 1;
+        // Helper function to get the number of days in a month (JS month is 0-indexed)
+        const getDaysInMonth = (year, monthIndex) => new Date(year, monthIndex + 1, 0).getDate();
 
-        // Get the first day of the month (0=Sun, 1=Mon, ..., 6=Sat)
-        const firstDayOfMonth = new Date(year, month, 1).getDay();
+        // Helper function to pad single-digit numbers for date strings (e.g., 5 -> '05')
+        const pad = (num) => num.toString().padStart(2, '0');
 
-        // Create a date object for formatting the month name
-        const date = new Date(year, month);
-        const monthName = date.toLocaleString('default', { month: 'long' });
 
-        // Update the header text
-        habitNameEl.textContent = apiData.habitName;
-        monthYearEl.textContent = `${monthName} ${year}`;
+        // --- Main Rendering Function ---
+        function renderCalendar(fullMonthItems, year, monthIndex, habitName) {
+            // monthIndex is 0-indexed (0=Jan)
 
-        let calendarHTML = '';
+            // 1. Update Header
+            const date = new Date(year, monthIndex);
+            const monthName = date.toLocaleString('default', { month: 'long' });
 
-        // Add empty cells for the days before the 1st of the month
-        for (let i = 0; i < firstDayOfMonth; i++) {
-            calendarHTML += `<div></div>`;
+            habitNameEl.textContent = habitName;
+            monthYearEl.textContent = `${monthName} ${year}`;
+
+            // 2. Determine Calendar Start Position (first day of the month)
+            const firstDayOfMonth = new Date(year, monthIndex, 1).getDay(); // 0=Sun, 1=Mon, etc.
+
+            let calendarHTML = '';
+
+            // Add empty cells for the days before the 1st of the month
+            for (let i = 0; i < firstDayOfMonth; i++) {
+                calendarHTML += `<div></div>`;
+            }
+
+            // 3. Populate Grid
+            fullMonthItems.forEach(item => {
+                let statusClass = "";
+                let dotClass = "bg-slate-100"; // Default: Gray for invalid/missing days
+
+                // Determine status mark and dot color
+                if (item.isValid) {
+                    // For ANY valid day, the background dot is green-ish
+                    dotClass = "bg-green-100";
+
+                    if (item.isSkipped) {
+                        statusClass = "skip-mark"; // • (yellow icon)
+                    } else if (item.isDone) {
+                        statusClass = "check-mark"; // ✓ (green icon)
+                    } else {
+                        statusClass = "x-mark";   // ✗ (red icon)
+                    }
+                }
+
+                // Extract the day number from the YYYY-MM-DD string
+                const dayNumber = parseInt(item.date.split('-')[2], 10);
+
+                // Highlight the current day (using the browser's current date)
+                const today = new Date();
+                const isToday = today.getDate() === dayNumber &&
+                    today.getMonth() === monthIndex &&
+                    today.getFullYear() === year;
+
+                // Apply different styling for invalid days (missing days)
+                const dayNumberClass = isToday
+                    ? 'bg-blue-600 text-white'
+                    : item.isValid ? 'text-slate-700' : 'text-slate-400';
+
+                // Add a subtle opacity change for non-valid days
+                const opacityClass = item.isValid ? '' : 'opacity-60';
+
+                calendarHTML += `
+          <div class="relative h-14 flex items-center justify-center text-lg font-medium ${statusClass} ${opacityClass}">
+            <!-- The colored dot background -->
+            <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full z-10 ${dotClass}"></span>
+            <!-- The day number, sits on top of the dot -->
+            <span class="relative z-20 w-8 h-8 flex items-center justify-center rounded-full ${dayNumberClass}">${dayNumber}</span>
+          </div>`;
+            });
+
+            grid.innerHTML = calendarHTML;
         }
 
-        // Populate the grid with data from the `items` array
-        apiData.items.forEach(item => {
-            let statusClass = "";
-            let dotClass = "bg-slate-100"; // Default to gray for invalid days
 
-            // Determine which mark and dot color to show.
-            if (item.isValid) {
-                // For ANY valid day (done, not done, or skipped), the background dot is green.
-                dotClass = "bg-green-100";
+        // --- Data Fetching and Processing ---
+        async function loadAndProcessData() {
+            let fetchedData;
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                fetchedData = await response.json();
+            } catch (error) {
+                console.error("Could not fetch calendar data:", error);
+                habitNameEl.textContent = "Error Loading Data";
+                monthYearEl.textContent = "Please check the server status at " + API_URL;
+                grid.innerHTML = `<div class="col-span-7 text-center py-8 text-red-500">Failed to load calendar data.</div>`;
+                return;
+            }
 
-                if (item.isSkipped) {
-                    statusClass = "skip-mark";  // • (yellow icon)
-                } else if (item.isDone) {
-                    statusClass = "check-mark"; // ✓ (green icon)
+            const year = parseInt(fetchedData.year, 10);
+            const month = parseInt(fetchedData.month, 10); // 1-indexed
+            const habitName = fetchedData.habitName || "Untitled Habit";
+            const monthIndex = month - 1; // 0-indexed for JS Date object
+
+            if (isNaN(year) || isNaN(month)) {
+                console.error("Invalid year or month received from API.");
+                return;
+            }
+
+            // Map existing items for fast lookup by date (YYYY-MM-DD)
+            const existingItemsMap = new Map();
+            (fetchedData.items || []).forEach(item => {
+                // Normalize 0/1 to false/true and ensure isValid is boolean
+                const normalizedItem = {
+                    date: item.date,
+                    isValid: !!item.isValid,
+                    isDone: item.isDone === 1 || item.isDone === true,
+                    isSkipped: item.isSkipped === 1 || item.isSkipped === true,
+                };
+                existingItemsMap.set(normalizedItem.date, normalizedItem);
+            });
+
+            // Generate the full month's data (filling in missing dates)
+            const daysInMonth = getDaysInMonth(year, monthIndex);
+            const fullMonthItems = [];
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                // Format the date key to ISO standard: YYYY-MM-DD
+                const dateKey = `${year}-${pad(month)}-${pad(day)}`;
+
+                if (existingItemsMap.has(dateKey)) {
+                    // Date found in API data
+                    fullMonthItems.push(existingItemsMap.get(dateKey));
                 } else {
-                    statusClass = "x-mark";     // ✗ (red icon)
+                    // Date is missing from API data, fill with isValid: false
+                    fullMonthItems.push({
+                        date: dateKey,
+                        isValid: false,
+                        isDone: false,
+                        isSkipped: false,
+                    });
                 }
             }
 
-            // Extract the day number from the "DD-MM-YYYY" string.
-            const dayNumber = parseInt(item.day.substring(0, 2), 10);
+            // Render the processed data
+            renderCalendar(fullMonthItems, year, monthIndex, habitName);
+        }
 
-            // Highlight the current day
-            const isToday = new Date().getDate() === dayNumber &&
-                            new Date().getMonth() === month &&
-                            new Date().getFullYear() === year;
-
-            const dayNumberClass = isToday ? 'bg-blue-600 text-white' : 'text-slate-700';
-
-            calendarHTML += `
-                <div class="relative h-14 flex items-center justify-center text-lg font-medium ${statusClass}">
-                    <!-- The colored dot background -->
-                    <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full z-10 ${dotClass}"></span>
-                    <!-- The day number, sits on top of the dot -->
-                    <span class="relative z-20 w-8 h-8 flex items-center justify-center rounded-full ${dayNumberClass}">${dayNumber}</span>
-                </div>`;
-        });
-
-        grid.innerHTML = calendarHTML;
+        // Start the process on page load
+        window.onload = loadAndProcessData;
     </script>
 </body>
-</html>
 
+</html>

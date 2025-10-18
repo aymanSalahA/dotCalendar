@@ -7,9 +7,13 @@ A dot grid calendar visualization tool. Displays days of the month as a grid of 
 -   Grid-based calendar view
 -   Dot visualization for dates
 -   Data overlay support
+-   static and api data source version
+-   all code and style in one page , can be splitted
+-
 
 ## Todo
 
-- [ ] Integrate data source handling
-- [ ] Implement styling system
+- [ ] tooltip
 - [ ] Add repository preview image/GIF
+- [ ] readme image
+- [ ] 
